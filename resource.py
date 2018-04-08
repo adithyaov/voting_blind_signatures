@@ -16,6 +16,9 @@ class Verifier:
 	def verify(self, msg_digest, msg_signature):
 		return self.pub_key.verify(msg_digest, (msg_signature,))
 
+	def verify_msg(self, msg, msg_signature):
+		return self.verify(hash(msg), msg_signature)
+
 
 class Authority(Verifier):
 	"""docstring for Authority"""
@@ -53,7 +56,7 @@ m = "Hi My Name is Adithya"
 bm = B.blind_msg(m)
 (sm,) = A.sign(bm)
 um = B.unblind_msg(sm)
-v = V.verify(hash(m), um)
+v = V.verify_msg(m, um)
 
 print v
 
