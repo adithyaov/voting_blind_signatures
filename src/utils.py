@@ -8,6 +8,10 @@ def save_object(obj, file_path):
 	with open(file_path, 'wb') as file:
 		pickle.dump(obj, file, pickle.HIGHEST_PROTOCOL)
 
+def open_object(file_path):
+	with open(file_path, 'rb') as file:
+		return pickle.load(file)
+
 
 def create_ballot(ballot_name):
 	A = Authority()
@@ -17,20 +21,20 @@ def create_ballot(ballot_name):
 
 
 def read_ballot(ballot_name):
-	with open(join(base_path, 'data/authority-objects/', ballot_name), 'rb') as input:
-	    return pickle.load(input)
-
+	return open_object(join(base_path, 'data/authority-objects/', ballot_name))
 
 def verify_voter(token):
-	return False
+	return 0, 0, False
 
 
-def create_ballots(ballots)
-	for b in ballots:
-		create_ballot(b)
-
-
-
+def verify_vote(vote, prev_votes):
+	'''
+	{
+		'vote': ...
+		'signature': ...
+	}
+	'''
+	return True
 
 
 
