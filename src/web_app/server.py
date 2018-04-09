@@ -10,13 +10,14 @@ response.content_type = 'application/json'
 ballots = ['b1', 'b2', 'b3']
 ballot_locks = {}
 
-voters_lock = threading.Lock()
+voter_locks = {}
 voters = {}
 
 for b in ballots:
     create_ballot(b)
     save_object([], join(base_path, 'data/votes/', b))
     ballot_locks[b] = threading.Lock()
+    voter_locks[b] = threading.Lock()
     voters[b] = []
 
 
@@ -35,10 +36,11 @@ def sign_message(ballot_name):
         if email in voters[ballot_name]:
             return dumps({'code': 409, 'error': 'Already casted vote.'})
         if is_valid:
-            with voters_lock:
-                voters[ballot_name].append(email)
             A = read_ballot(ballot_name)
-            return dumps({'code': 200, 'signed_msg': A.sign(data['msg'])})
+            signed_msg = A.sign(data['msg'])
+            with voter_locks[ballot_name]:
+                voters[ballot_name].append(email)
+            return dumps({'code': 200, 'signed_msg': signed_msg})
         return dumps({'code': 400, 'error': 'Not a valid voter.'})
     except Exception as e:
         return dumps({'code': 500, 'error': str(e)})
@@ -60,4 +62,4 @@ def dump_vote(ballot_name):
         return dumps({'code': 500, 'error': str(e)})
 
 
-run(host='localhost', port=8080)
+run(host='10.64.10.171', port=8080)

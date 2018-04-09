@@ -24,7 +24,7 @@ def read_ballot(ballot_name):
 	return open_object(join(base_path, 'data/authority-objects/', ballot_name))
 
 def verify_voter(token):
-	return 0, 0, False
+	return 0, 0, True
 
 
 def verify_vote(vote, prev_votes):
