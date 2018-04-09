@@ -1,4 +1,4 @@
-import cPickle as pickle
+import pickle as pickle
 from resource import Authority
 from os.path import join
 
