@@ -3,11 +3,13 @@ from utils import *
 from requests import *
 from hashlib import md5
 from resource import Blinder
+import json
 
-
-
+B = None
 
 def get_sign(email, password, party, ballot_name):
+
+    global B
 
     public_key = open_object(join(base_path, 'data/public-keys/', ballot_name))
     B = Blinder(public_key)
@@ -16,6 +18,7 @@ def get_sign(email, password, party, ballot_name):
         'party': party,
         'timestamp': str(datetime.datetime.now())
     }
+
     B.update_random()
     blind_msg = B.blind_msg(str(message))
 
@@ -41,16 +44,22 @@ def show_votes(ballot_name):
     return r.json()
 
 def sign_and_dump(email, password, party, ballot_name):
+
+    global B
+
     m, r = get_sign(email, password, party, ballot_name)
 
     if r['code'] == 200:
-        r = dump_vote(m, r['msg_signature'][0], ballot_name)
+        r = dump_vote(m, B.unblind_msg(r['msg_signature'][0]), ballot_name)
+        print json.dumps(r, indent=1)
     else:
-        print r
-
-    print r
+        print json.dumps(r, indent=1)
         
-    print show_votes(ballot_name)
+    print json.dumps(show_votes(ballot_name), indent=1)
 
 
-sign_and_dump('email1', 'password1', 'b1_p0', 'b1')
+# sign_and_dump('email1', 'password1', 'b1_p0', 'b1')
+
+
+
+

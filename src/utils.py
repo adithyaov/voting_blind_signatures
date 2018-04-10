@@ -72,8 +72,8 @@ def verify_vote(vote, prev_votes, ballot_name):
             return False
 
         if vote['msg']['party'] not in true_parties[ballot_name]:
-            log('info', 'Invalid party, party: {}, valid_partys: {}'
-                .format(str(vote['party']), str(true_parties[ballot_name])))
+            log('info', 'Invalid party, party: {}, valid_parties: {}'
+                .format(str(vote['msg']['party']), str(true_parties[ballot_name])))
             return False
 
         A = read_ballot(ballot_name)
@@ -86,7 +86,7 @@ def verify_vote(vote, prev_votes, ballot_name):
         return True
     except Exception as e:
         log('exception verify vote', e)
-        return 0, False
+        return False
 
 
 
