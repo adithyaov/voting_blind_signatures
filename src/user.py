@@ -40,7 +40,7 @@ def open_object(file_path):
 auth_id={'token':'a'}
 
 #message in json format
-msg_json = json.dumps({'v_for':"Prabal",'ballet_id':"GS",'timestamp':time.time()})
+msg_json = json.dumps({'v_for':"Prabal",'timestamp':time.time()})
 
 #getting the public key from file b1
 pub_key=open_object("b1")
@@ -52,8 +52,10 @@ msg=(auth_id)
 print(type(msg))
 #send the msg to authenticator
 r = post("http://10.64.10.171:8080/sign-blind-msg/b1",json=msg)
-print(r.text)
-
+sgn = str(r["signed_msg"])
+msg_json['sign']=sgn
+r = post("http://10.64.10.171:8080/dump-vote/b1",json=msg_json)
+print(r)
 
 
 
