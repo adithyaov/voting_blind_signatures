@@ -15,7 +15,7 @@ voters = {}
 
 
 for b in ballots:
-    # create_ballot(b)
+    create_ballot(b)
     save_object([], join(base_path, 'data/votes/', b))
     ballot_locks[b] = threading.Lock()
     voter_locks[b] = threading.Lock()
