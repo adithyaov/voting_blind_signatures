@@ -13,7 +13,7 @@ from Crypto.Hash import SHA256
 import _pickle as pickle
 from random import SystemRandom
 from requests import *
-
+from hashlib import md5
 
 class Blinder():
     """docstring for Blinder"""
@@ -36,8 +36,11 @@ class Blinder():
 def open_object(file_path):
     with open(file_path, 'rb') as file:
         return pickle.load(file)
-
-auth_id={'token':'a'}
+m=md5()
+uname="prabal"
+m.update("1234")
+passwd=m.hexdigest()
+auth_id={'token':{"username":uname,"password":passwd}}
 
 #message in json format
 msg_json = json.dumps({'v_for':"Prabal",'timestamp':time.time()})
