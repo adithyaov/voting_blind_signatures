@@ -104,19 +104,4 @@ def read_votes(ballot_name):
 	return vote_counts
 
 
-    test_users = {
-        'email1': md5('password1').hexdigest(),
-        'email2': md5('password2').hexdigest(),
-        'email3': md5('password3').hexdigest(),
-        'email4': md5('password4').hexdigest()
-    }
-    try:
-        if test_users[token['email']] == token['password_hash']:
-            log('info', 'Successful user Auth.')
-            return token['email'], True
-        log('info', 'Failed user Auth.')
-        return token['email'], False
-    except Exception as e:
-        log('exception verify voter', e)
-        return 0, False
 

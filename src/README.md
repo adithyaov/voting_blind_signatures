@@ -1,45 +1,28 @@
-**Edit a file, create a new file, and clone from Bitbucket in under 2 minutes**
+## Online voting using Blind Signatures
 
-When you're done, you can delete the content in this README and update the file with details for others getting started with your repository.
-
-*We recommend that you open this README in another tab as you perform the tasks below. You can [watch our video](https://youtu.be/0ocf7u76WSo) for a full demo of all the steps in this tutorial. Open the video in a new tab to avoid leaving Bitbucket.*
+The model of online voting we have implemented relies on the use of blind signatures to dissociate voter preference from vote identity.
 
 ---
 
-## Edit a file
-
-You’ll start by editing this README file to learn how to edit a file in Bitbucket.
-
-1. Click **Source** on the left side.
-2. Click the README.md link from the list of files.
-3. Click the **Edit** button.
-4. Delete the following text: *Delete this line to make a change to the README from Bitbucket.*
-5. After making your change, click **Commit** and then **Commit** again in the dialog. The commit page will open and you’ll see the change you just made.
-6. Go back to the **Source** page.
+The voting is done through a client server system built using the bottle framework in python. The server can implement mulitple ballot boxes (as pickle files) corresponding to different elections at the same time. Inorder to facilitate this, the server has been built to allow safe multi-threaded execution. All the voter needs to do is input his/her credential and candidate preference in the client program and it will take care of the authentication of the user and subsequent casting of the vote in the chosen ballot box. 
 
 ---
 
-## Create a file
+## Source files
 
-Next, you’ll add a new file to this repository.
+The web framework used is bottle and most of the cryptographic function are imported from python libraries like hashlib, Hash and PublicKey from Crypto module
 
-1. Click the **New file** button at the top of the **Source** page.
-2. Give the file a filename of **contributors.txt**.
-3. Enter your name in the empty file space.
-4. Click **Commit** and then **Commit** again in the dialog.
-5. Go back to the **Source** page.
+1. user.py, it is the client part of the system. It takes voter id, preference and ballot box as input from the voter. It then looks up the public key corresponding to given ballot box and blinds the preference.  The blinded preference is sent to the authenticator for signing along with the Voter identification. After successful reciept of the signed blinded preference the preference is unblinded and sent to the ballot box along with the unsigned preference. It also allows for the download of all votes cast in a particular ballot box for public verification of the election result.
+2. server.py, it does the role of both the authenticator and of verifying the vote to be cast in the ballot box. As the authenticator, it creates and stores the public keys and private keys corresponding to each ballot box as pickled objects in corresponding files. It also performs the role verifying the signature on the preference when the vote is cast. The timestamp on the signed preference prevents recasting the same vote as different votes. It provides functionalities to calculate election results and also to download votes cast in a particular ballot.
+3. utils.py contain commonly used function like creation and reading ballot boxes, pickling and unpickling, voter and vote verification  and logging
+4. resource.py contains classes that provide abstractions for the different players in the system i.e., the authority who creates the ballot box, the verifier who checks for correct signature on the vote and the blinder who blindes candidate preference
 
 Before you move on, go ahead and explore the repository. You've already seen the **Source** page, but check out the **Commits**, **Branches**, and **Settings** pages.
 
 ---
 
-## Clone a repository
+## Others
 
-Use these steps to clone from SourceTree, our client for using the repository command-line free. Cloning allows you to work on your files locally. If you don't yet have SourceTree, [download and install first](https://www.sourcetreeapp.com/). If you prefer to clone from the command line, see [Clone a repository](https://confluence.atlassian.com/x/4whODQ).
-
-1. You’ll see the clone button under the **Source** heading. Click that button.
-2. Now click **Check out in SourceTree**. You may need to create a SourceTree account or log in.
-3. When you see the **Clone New** dialog in SourceTree, update the destination path and name if you’d like to and then click **Clone**.
-4. Open the directory you just created to see your repository’s files.
-
-Now that you're more familiar with your Bitbucket repository, go ahead and add a new file locally. You can [push your change back to Bitbucket with SourceTree](https://confluence.atlassian.com/x/iqyBMg), or you can [add, commit,](https://confluence.atlassian.com/x/8QhODQ) and [push from the command line](https://confluence.atlassian.com/x/NQ0zDQ).
+1. Files in the data/authority-objects contain authority objects (public and private keys) for each ballot boxes.
+2. Files in the data/public-keys contain the public keys for each ballot boxes which are used by the client to blind the preference.
+3. Files in the data/votes contain the votes cast in each ballot box
