@@ -53,14 +53,20 @@ class Blinder(Verifier):
     def update_random(self):
         self.r = SystemRandom().randrange(self.pub_key.n >> 10, self.pub_key.n)
 
+'''
 
-# A = Authority()
-# B = Blinder(A.pub_key)
-# V = Verifier(A.pub_key)
-# m = "Hi My Name is Adithya"
-# bm = B.blind_msg(m)
-# (sm,) = A.sign(bm)
-# um = B.unblind_msg(sm)
-# v = V.verify_msg(m, um)
+Workflow
 
-# print v
+A = Authority()
+B = Blinder(A.pub_key)
+V = Verifier(A.pub_key)
+m = "Hi My Name is Adithya"
+bm = B.blind_msg(m)
+(sm,) = A.sign(bm)
+um = B.unblind_msg(sm)
+v = V.verify_msg(m, um)
+
+print v
+
+
+'''

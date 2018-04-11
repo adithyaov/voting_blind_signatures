@@ -4,10 +4,11 @@ from requests import *
 from hashlib import md5
 from resource import Blinder
 import json
+from os.path import join
 import random
 
 B = None
-
+host = 'http://10.64.10.171:8080'
 
 def get_sign(email, password, party, ballot_name):
 
@@ -25,7 +26,7 @@ def get_sign(email, password, party, ballot_name):
     B.update_random()
     blind_msg = B.blind_msg(str(message))
 
-    r = post('http://10.64.10.171:8080/sign-blind-msg/{}'.format(ballot_name),
+    r = post('{}/sign-blind-msg/{}'.format(host, ballot_name),
              data={
                  'email': email,
                  'password_hash': md5(password).hexdigest(),
@@ -36,7 +37,7 @@ def get_sign(email, password, party, ballot_name):
 
 
 def dump_vote(message, msg_signature, ballot_name):
-    r = post('http://10.64.10.171:8080/dump-vote/{}'.format(ballot_name),
+    r = post('{}/dump-vote/{}'.format(host, ballot_name),
              data={
                  'msg': str(message),
                  'msg_signature': msg_signature
@@ -45,7 +46,7 @@ def dump_vote(message, msg_signature, ballot_name):
 
 
 def show_votes(ballot_name):
-    r = get('http://10.64.10.171:8080/votes/{}'.format(ballot_name))
+    r = get('{}/votes/{}'.format(host, ballot_name))
     return r.json()
 
 

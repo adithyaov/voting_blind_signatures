@@ -2,22 +2,17 @@ import pickle as pickle
 from os.path import join
 from hashlib import md5
 import datetime
-
-from server import log_lock
 from resource import Authority
 
 
 base_path = '/home/adithya/Prog/networking-project/src/'
 
 
-def log(type, text):
+def log(log_list, type, text):
     curr_log = '{} : [{}] {}'.format(datetime.datetime.now(),
                                      type.upper(), text)
-    with log_lock:
-        logs = open_object(join(base_path, 'data/log'))
-        logs.append(curr_log)
-        save_object(logs, join(base_path, 'data/log'))
     print curr_log
+    log_list.append(curr_log)
 
 
 def save_object(obj, file_path):
@@ -41,7 +36,7 @@ def read_ballot(ballot_name):
     return open_object(join(base_path, 'data/authority-objects/', ballot_name))
 
 
-def verify_voter(token):
+def verify_voter(token, **kwargs):
 
     test_users = {
         'email1': md5('password1').hexdigest(),
@@ -51,14 +46,17 @@ def verify_voter(token):
     }
     try:
         if test_users[token['email']] == token['password_hash']:
-            log('info', 'Successful user Auth.')
+            log(kwargs['log_list'], 'info', 'Successful user Auth.')
             return token['email'], True
+        else:
+        	log(kwargs['log_list'], 'info', 'Auth failed.')
+        	return token['email'], False
 
-        log('info', 'Failed user Auth.')
+        log(kwargs['log_list'], 'info', 'Failed user Auth.')
         return token['email'], False
 
     except Exception as e:
-        log('exception verify voter', e)
+        log(kwargs['log_list'], 'exception verify voter', e)
         return 0, False
 
 
@@ -69,20 +67,20 @@ true_parties = {
 }
 
 
-def verify_vote(vote, prev_votes, ballot_name):
+def verify_vote(vote, prev_votes, ballot_name, **kwargs):
 
     try:
         bias_eq = filter(lambda x: x['msg']['bias'] ==
                          vote['msg']['bias'], prev_votes)
 
         if len(bias_eq) > 0:
-            log('info', 'Vote clash, vote: {}, votes: {}'
+            log(kwargs['log_list'], 'info', 'Vote clash, vote: {}, votes: {}'
                 .format(str(vote['msg']),
                         str(map(lambda x: x['msg'], bias_eq))))
             return False
 
         if vote['msg']['party'] not in true_parties[ballot_name]:
-            log('info', 'Invalid party, party: {}, valid_parties: {}'
+            log(kwargs['log_list'], 'info', 'Invalid party, party: {}, valid_parties: {}'
                 .format(str(vote['msg']['party']),
                         str(true_parties[ballot_name])))
             return False
@@ -90,13 +88,13 @@ def verify_vote(vote, prev_votes, ballot_name):
         A = read_ballot(ballot_name)
 
         if not A.verify_msg(str(vote['msg']), vote['msg_signature']):
-            log('info', 'Invalid signature, vote: {}'.format(str(vote['msg'])))
+            log(kwargs['log_list'], 'info', 'Invalid signature, vote: {}'.format(str(vote['msg'])))
             return False
 
-        log('info', 'Successful vote Auth, vote: {}'.format(str(vote['msg'])))
+        log(kwargs['log_list'], 'info', 'Successful vote Auth, vote: {}'.format(str(vote['msg'])))
         return True
     except Exception as e:
-        log('exception verify vote', e)
+        log(kwargs['log_list'], 'exception verify vote', e)
         return False
 
 
