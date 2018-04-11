@@ -60,6 +60,7 @@ true_parties = {
     'b3': ['b3_p0', 'b3_p1', 'b3_p2', 'b3_p3']
 }
 
+
 def verify_vote(vote, prev_votes, ballot_name):
 
     try:
@@ -90,18 +91,14 @@ def verify_vote(vote, prev_votes, ballot_name):
         return False
 
 
-
 def read_votes(ballot_name):
-	votes = open_object(join(base_path, 'data/votes/', ballot_name))
-	vote_counts = {}
+    votes = open_object(join(base_path, 'data/votes/', ballot_name))
+    vote_counts = {}
 
-	for p in true_parties[ballot_name]:
-		vote_counts[p] = 0
+    for p in true_parties[ballot_name]:
+        vote_counts[p] = 0
 
-	for x in votes:
-		vote_counts[x['msg']['party']] += 1
+    for x in votes:
+        vote_counts[x['msg']['party']] += 1
 
-	return vote_counts
-
-
-
+    return vote_counts
