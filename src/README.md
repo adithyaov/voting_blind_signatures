@@ -10,19 +10,17 @@ The voting is done through a client server system built using the bottle framewo
 
 ## Source files
 
-The web framework used is bottle and most of the cryptographic function are imported from python libraries like hashlib, Hash and PublicKey from Crypto module
+The web framework used is **bottle** and most of the cryptographic function are imported from python libraries like hashlib and classes like Hash and PublicKey from the Crypto module
 
-1. user.py, it is the client part of the system. It takes voter id, preference and ballot box as input from the voter. It then looks up the public key corresponding to given ballot box and blinds the preference.  The blinded preference is sent to the authenticator for signing along with the Voter identification. After successful reciept of the signed blinded preference the preference is unblinded and sent to the ballot box along with the unsigned preference. It also allows for the download of all votes cast in a particular ballot box for public verification of the election result.
-2. server.py, it does the role of both the authenticator and of verifying the vote to be cast in the ballot box. As the authenticator, it creates and stores the public keys and private keys corresponding to each ballot box as pickled objects in corresponding files. It also performs the role verifying the signature on the preference when the vote is cast. The timestamp on the signed preference prevents recasting the same vote as different votes. It provides functionalities to calculate election results and also to download votes cast in a particular ballot.
-3. utils.py contain commonly used function like creation and reading ballot boxes, pickling and unpickling, voter and vote verification  and logging
-4. resource.py contains classes that provide abstractions for the different players in the system i.e., the authority who creates the ballot box, the verifier who checks for correct signature on the vote and the blinder who blindes candidate preference
-
-Before you move on, go ahead and explore the repository. You've already seen the **Source** page, but check out the **Commits**, **Branches**, and **Settings** pages.
+1. **user.py** contains the client part of the system. It takes voter id, preference and ballot box as input from the voter. It then looks up the public key corresponding to the given ballot box and blinds the candidate preference. The blinded preference is then sent to the authenticator for signing along with the voter identification. After successful receipt of the signed blinded preference, the preference is unblinded and sent to the ballot box along with the unsigned preference. It also allows for the download of all votes cast in a particular ballot box for public verification of the election result.
+2. **server.py** does the role of both the authenticator and of verifying the vote to be cast in the ballot box. As the authenticator, it creates and stores the public keys and private keys corresponding to each ballot box as pickled objects in corresponding files in the data folder. It also performs the role of verifying the signature on the preference when the vote is cast. The timestamp on the signed preference prevents recasting the same vote as different votes. It provides functionalities to calculate election results and also to download votes cast in a particular ballot.
+3. **utils.py** contains commonly used functions like creatiing and reading ballot boxes, pickling and unpickling, voter and vote verification  and logging
+4. **resource.py** contains classes that provide abstractions for the different players in the system i.e., the authority who creates the ballot box, the verifier who checks for correct signature on the vote and the blinder who blindes candidate preference
 
 ---
 
 ## Others
 
-1. Files in the data/authority-objects contain authority objects (public and private keys) for each ballot boxes.
-2. Files in the data/public-keys contain the public keys for each ballot boxes which are used by the client to blind the preference.
-3. Files in the data/votes contain the votes cast in each ballot box
+1. Files in the **data/authority-objects** contain pickled authority objects (public and private keys) for the corresponding ballot boxes.
+2. Files in the **data/public-keys** contain the pickled public keys for the corresponding ballot boxes and are used by the client to blind the preference.
+3. Files in the **data/votes** contain the votes cast in each ballot box
