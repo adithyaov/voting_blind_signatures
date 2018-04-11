@@ -1,8 +1,8 @@
-from bottle import run, static_file, post, get, request, template, response
+from bottle import run, static_file, post, get, request, response
 from ..utils import (base_path, read_ballot, verify_voter, create_ballot,
                      verify_vote, save_object, log, open_object, read_votes)
 from os.path import join
-from json import dumps, loads
+from json import dumps
 import threading
 from ast import literal_eval
 
@@ -14,6 +14,8 @@ ballot_locks = {}
 voter_locks = {}
 voters = {}
 
+log_lock = threading.Lock()
+save_object([], join(base_path, 'data/log'))
 
 for b in ballots:
     create_ballot(b)
@@ -37,6 +39,7 @@ def download_votes(ballot_name):
     return static_file(ballot_name,
                        root=join(base_path, 'data/votes'),
                        download=ballot_name)
+
 
 @get('/votes/<ballot_name>')
 def show_votes(ballot_name):

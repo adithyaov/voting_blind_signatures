@@ -4,6 +4,7 @@ from requests import *
 from hashlib import md5
 from resource import Blinder
 import json
+import random
 
 B = None
 
@@ -17,7 +18,8 @@ def get_sign(email, password, party, ballot_name):
 
     message = {
         'party': party,
-        'timestamp': str(datetime.datetime.now())
+        'bias': md5(str(datetime.datetime.now()) +
+                    str(random.random())).hexdigest()
     }
 
     B.update_random()

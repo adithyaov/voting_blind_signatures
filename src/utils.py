@@ -1,15 +1,21 @@
 import pickle as pickle
 from resource import Authority
 from os.path import join
-from hashlib import sha512, sha256, md5
+from hashlib import md5
 import datetime
-
+from server import log_lock
 
 base_path = '/home/adithya/Prog/networking-project/src/'
 
 
 def log(type, text):
-    print '{} : [{}] {}'.format(datetime.datetime.now(), type.upper(), text)
+    curr_log = '{} : [{}] {}'.format(datetime.datetime.now(),
+                                     type.upper(), text)
+    with log_lock:
+        logs = open_object(join(base_path, 'data/log'))
+        logs.append(curr_log)
+        save_object(logs, join(base_path, 'data/log'))
+    print curr_log
 
 
 def save_object(obj, file_path):
@@ -64,18 +70,19 @@ true_parties = {
 def verify_vote(vote, prev_votes, ballot_name):
 
     try:
-        timestamp_eq = filter(lambda x: x['msg']['timestamp'] ==
-                              vote['msg']['timestamp'], prev_votes)
+        bias_eq = filter(lambda x: x['msg']['bias'] ==
+                         vote['msg']['bias'], prev_votes)
 
-        if len(timestamp_eq) > 0:
+        if len(bias_eq) > 0:
             log('info', 'Vote clash, vote: {}, votes: {}'
                 .format(str(vote['msg']),
-                        str(map(lambda x: x['msg'], timestamp_eq))))
+                        str(map(lambda x: x['msg'], bias_eq))))
             return False
 
         if vote['msg']['party'] not in true_parties[ballot_name]:
             log('info', 'Invalid party, party: {}, valid_parties: {}'
-                .format(str(vote['msg']['party']), str(true_parties[ballot_name])))
+                .format(str(vote['msg']['party']),
+                        str(true_parties[ballot_name])))
             return False
 
         A = read_ballot(ballot_name)
