@@ -24,3 +24,29 @@ The web framework used is **bottle** and most of the cryptographic function are 
 1. Files in the **data/authority-objects** contain pickled authority objects (public and private keys) for the corresponding ballot boxes.
 2. Files in the **data/public-keys** contain the pickled public keys for the corresponding ballot boxes and are used by the client to blind the preference.
 3. Files in the **data/votes** contain the votes cast in each ballot box
+
+
+##Dependencies
+
+
+###Common  
+datetime  
+pickle  
+pycrypto  
+random  
+json  
+hashlib  
+
+###Server
+threading  
+ast  
+bottle  
+
+###Client
+requests  
+
+---
+
+###Installing
+All dependencies can be installed via pip 2.7
+

@@ -1,10 +1,12 @@
 from bottle import run, static_file, post, get, request, response
-from ..utils import (base_path, read_ballot, verify_voter, create_ballot,
-                     verify_vote, save_object, log, open_object, read_votes)
 from os.path import join
 from json import dumps
 import threading
 from ast import literal_eval
+
+from ..utils import (base_path, read_ballot, verify_voter, create_ballot,
+                     verify_vote, save_object, log, open_object, read_votes)
+
 
 response.content_type = 'application/json'
 
