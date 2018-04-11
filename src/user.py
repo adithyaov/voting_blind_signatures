@@ -1,66 +1,63 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Apr  8 14:37:41 2018
-
-@author: dineshvashisht
-"""
-
-import time
-import json
-from Crypto.PublicKey import RSA
-from Crypto.Hash import SHA256
-import _pickle as pickle
-from random import SystemRandom
+import datetime
+from utils import *
 from requests import *
 from hashlib import md5
+from resource import Blinder
+import json
+
+B = None
+
+def get_sign(email, password, party, ballot_name):
+
+    global B
+
+    public_key = open_object(join(base_path, 'data/public-keys/', ballot_name))
+    B = Blinder(public_key)
+
+    message = {
+        'party': party,
+        'timestamp': str(datetime.datetime.now())
+    }
+
+    B.update_random()
+    blind_msg = B.blind_msg(str(message))
+
+    r = post('http://10.64.10.171:8080/sign-blind-msg/{}'.format(ballot_name),
+             data={
+                 'email': email,
+                 'password_hash': md5(password).hexdigest(),
+                 'msg': blind_msg
+             })
+
+    return message, r.json()
+
+def dump_vote(message, msg_signature, ballot_name):
+    r = post('http://10.64.10.171:8080/dump-vote/{}'.format(ballot_name),
+             data={
+                 'msg': str(message),
+                 'msg_signature': msg_signature
+             })
+    return r.json()
+
+def show_votes(ballot_name):
+    r = get('http://10.64.10.171:8080/votes/{}'.format(ballot_name))
+    return r.json()
+
+def sign_and_dump(email, password, party, ballot_name):
+
+    global B
+
+    m, r = get_sign(email, password, party, ballot_name)
+
+    if r['code'] == 200:
+        r = dump_vote(m, B.unblind_msg(r['msg_signature'][0]), ballot_name)
+        print json.dumps(r, indent=1)
+    else:
+        print json.dumps(r, indent=1)
+        
+    print json.dumps(show_votes(ballot_name), indent=1)
 
 
-class Blinder():
-    """docstring for Blinder"""
-
-    def __init__(self, pub_key):
-        self.pub_key = pub_key
-        self.r = SystemRandom().randrange(self.pub_key.n >> 10, self.pub_key.n)
-
-    def blind(self, msg_digest):
-        return self.pub_key.blind(msg_digest, self.r)
-
-    def blind_msg(self, msg):
-        return self.blind(hash(msg))
-
-    def unblind_msg(self, blinded_msg):
-        return self.pub_key.unblind(blinded_msg, self.r)
-
-    def update_random(self):
-        self.r = SystemRandom().randrange(self.pub_key.n >> 10, self.pub_key.n)
+# sign_and_dump('email1', 'password1', 'b1_p0', 'b1')
 
 
-def open_object(file_path):
-    with open(file_path, 'rb') as file:
-        return pickle.load(file)
-
-
-m = md5()
-uname = "prabal"
-m.update("1234")
-passwd = m.hexdigest()
-auth_id = {'token': {"username": uname, "password": passwd}}
-
-# message in json format
-msg_json = json.dumps({'v_for': "Prabal", 'timestamp': time.time()})
-
-# getting the public key from file b1
-pub_key = open_object("b1")
-B = Blinder(pub_key)
-bm = B.blind_msg(msg_json)
-print(len(str(bm)))
-auth_id['msg'] = bm
-msg = (auth_id)
-print(type(msg))
-# send the msg to authenticator
-r = post("http://10.64.10.171:8080/sign-blind-msg/b1", json=msg)
-sgn = str(r["signed_msg"])
-msg_json['sign'] = sgn
-r = post("http://10.64.10.171:8080/dump-vote/b1", json=msg_json)
-print(r)
